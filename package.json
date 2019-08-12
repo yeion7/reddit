@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next",
+    "prebuild": "yarn lint && yarn test --ci",
     "build": "next build",
     "start": "next start",
     "lint": "eslint '**/*.{ts, tsx}' --ignore-pattern node_modules/",
