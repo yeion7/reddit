@@ -1,7 +1,8 @@
-import React from 'react'
+import React from "react";
+import { NextPage } from "next";
 
-function Home() {
+const Home: NextPage = () => {
   return <div>Reddit clone!</div>;
-}
+};
 
 export default Home;
