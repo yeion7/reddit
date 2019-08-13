@@ -1,13 +1,29 @@
 import React from "react";
 import { NextPage } from "next";
 import Item from "../components/item";
+import Comment from "../components/comment";
 
 const Home: NextPage = () => {
   return (
-    <div style={{ padding: "1em" }}>
+    <div className="app">
       <Item></Item>
-      <Item></Item>
-      <Item></Item>
+      <div style={{ margin: "1em" }}>
+        <Comment child={<Comment child={<Comment />} />} />
+      </div>
+      <style jsx>
+        {`
+          .app {
+            padding: 0.5em;
+          }
+          @media (min-width: 425px) {
+            .app {
+              padding: 1em;
+              max-width: 1280px;
+              margin: 0 auto;
+            }
+          }
+        `}
+      </style>
       <style jsx global>{`
         * {
           box-sizing: border-box;
@@ -17,8 +33,13 @@ const Home: NextPage = () => {
             Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
             "Segoe UI Symbol";
           background: #dae0e6;
-          font-size: 16px;
+          font-size: 14px;
           margin: 0;
+        }
+        @media (min-width: 425px) {
+          body {
+            font-size: 16px;
+          }
         }
       `}</style>
     </div>
