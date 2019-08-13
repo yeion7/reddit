@@ -42,7 +42,8 @@ export const parsePost = (rawPost: RawEntry) => {
     subreddit: rawPost.subreddit,
     author: rawPost.author,
     created: rawPost.created_utc,
-    comments: rawPost.num_comments
+    comments: rawPost.num_comments,
+    postHint: rawPost.post_hint
   };
 };
 

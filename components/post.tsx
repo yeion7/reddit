@@ -6,13 +6,22 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import fromUnixTime from "date-fns/fromUnixTime";
 import es from "date-fns/locale/es/index";
 
+const ICONS = {
+  image: "🗾",
+  link: "🔗",
+  "hosted:video": "📼",
+  "rich:video": "📼",
+  self: "📝"
+};
+
 const Post: React.FC<ReturnType<typeof parsePost>> = ({
   ups,
   title,
   subreddit,
   author,
   created,
-  comments
+  comments,
+  postHint
 }) => {
   return (
     <div className="container">
@@ -26,7 +35,7 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
         </button>
       </div>
       <div className="content">
-        <button className="preview">🏙</button>
+        <button className="preview">{ICONS[postHint] || "😱"}</button>
         <div className="info">
           <div>
             <h3 className="title">{title}</h3>

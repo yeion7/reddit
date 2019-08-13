@@ -57,7 +57,7 @@ export interface RawEntry {
   author_flair_css_class?: string;
   author_flair_richtext: any[];
   gildings: Gildings;
-  post_hint?: string;
+  post_hint?: "image" | "link" | "hosted:video" | "rich:video" | "self";
   content_categories?: string[];
   is_self: boolean;
   mod_note?: any;
