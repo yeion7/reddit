@@ -10,10 +10,10 @@ export interface RedditResponse {
 
 interface Children {
   kind: string;
-  data: Entry;
+  data: RawEntry;
 }
 
-interface Entry {
+export interface RawEntry {
   approved_at_utc?: Date;
   subreddit: string;
   selftext: string;

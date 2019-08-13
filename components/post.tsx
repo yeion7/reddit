@@ -1,13 +1,26 @@
 import React from "react";
+import Link from "next/link";
+import { parsePost } from "../schemas";
+import { nFormatter } from "../utils";
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import fromUnixTime from "date-fns/fromUnixTime";
+import es from "date-fns/locale/es/index";
 
-const Item: React.FC = () => {
+const Post: React.FC<ReturnType<typeof parsePost>> = ({
+  ups,
+  title,
+  subreddit,
+  author,
+  created,
+  comments
+}) => {
   return (
     <div className="container">
       <div className="actions">
         <button aria-label="upvote" className="vote">
           ⬆️
         </button>
-        <span className="count">17.3k</span>
+        <span className="count">{nFormatter(ups)}</span>
         <button aria-label="downvote" className="vote">
           ⬇️
         </button>
@@ -16,20 +29,26 @@ const Item: React.FC = () => {
         <button className="preview">🏙</button>
         <div className="info">
           <div>
-            <h3 className="title">My Oma turned 99 today!</h3>
+            <h3 className="title">{title}</h3>
             <div>
-              <a className="subreddit">r/aww</a>
+              <Link href={`/r/${subreddit}`}>
+                <a className="subreddit">{`r/${subreddit}`}</a>
+              </Link>
               <span role="presentation"> . </span>
               <span>Posted by </span>
-              <a>u/ajp12290</a>
+              <a>{`u/${author}`}</a>
               <span role="presentation"> . </span>
-              <span>3 hours ago</span>
+              <time dateTime={fromUnixTime(created).toLocaleString()}>
+                {formatDistanceToNow(fromUnixTime(created), {
+                  locale: es
+                })}
+              </time>
             </div>
           </div>
           <div>
             <span className="comments">
               <i>💬</i>
-              242
+              {nFormatter(comments)}
             </span>
           </div>
         </div>
@@ -88,7 +107,7 @@ const Item: React.FC = () => {
           .count {
             color: rgb(26, 26, 27);
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             word-break: normal;
             display: none;
@@ -144,4 +163,4 @@ const Item: React.FC = () => {
   );
 };
 
-export default Item;
+export default Post;

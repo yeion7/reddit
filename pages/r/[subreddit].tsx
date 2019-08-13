@@ -1,15 +1,21 @@
 import React from "react";
 import "isomorphic-unfetch";
 import { NextPage } from "next";
-import Item from "../../components/item";
+import Post from "../../components/post";
 import { RedditResponse } from "../../types/reddit";
+import { schemaPosts, parsePost } from "../../schemas";
+import { normalize } from "normalizr";
 
 const SubReddit: NextPage<{ data: RedditResponse }> = ({ data }) => {
-  console.log(data);
+  const { entities } = normalize<ReturnType<typeof parsePost>>(
+    data,
+    schemaPosts
+  );
+
   return (
     <div className="app">
-      {data.data.children.map(child => (
-        <Item key={child.data.id} />
+      {Object.values(entities.posts).map(post => (
+        <Post key={post.id} {...post} />
       ))}
       <style jsx>
         {`
