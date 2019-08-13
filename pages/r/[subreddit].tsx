@@ -1,53 +1,62 @@
-import React, { PureComponent } from "react";
+import React from "react";
 import { NextPage } from "next";
-import "isomorphic-unfetch";
 import { normalize } from "normalizr";
 
-import ListLoader from "../../components/InfinityLoader";
+import PostList from "../../components/PostList";
 import Post from "../../components/post";
 import { RedditResponse } from "../../types/reddit";
 
 import { schemaPosts, parsePost } from "../../schemas";
+import { fetchPosts } from "../../api";
 
 type Post = ReturnType<typeof parsePost>;
-const normalizeResponse = data =>
+
+const normalizeResponse = (data: RedditResponse): Post[] =>
   Object.values(normalize<Post>(data, schemaPosts).entities.posts);
 
-const SubReddit: NextPage<{ data: Post[] }> = ({ data }) => {
+const SubReddit: NextPage<{ data: Post[]; subreddit: string | string[] }> = ({
+  data,
+  subreddit
+}) => {
   const [isNextPageLoading, setIsNextPageLoading] = React.useState(false);
   const [hasNextPage, setHasNextPage] = React.useState(true);
   const [items, setItems] = React.useState(data);
 
+  /**
+   * use for load new posts when user scroll down
+   */
   const _loadNextPage = async () => {
     setIsNextPageLoading(true);
     const after = items[items.length - 1].name;
 
-    const res = await fetch(
-      `https://www.reddit.com/r/all.json?after=${after}&dist=25`
-    );
-    const json: RedditResponse = await res.json();
-    const newItems = [...items, ...normalizeResponse(json)];
+    const posts: RedditResponse = await fetchPosts({ subreddit, after });
+    const hasChildren = posts.data.children.length > 0;
+    let newItems = items;
+
+    if (hasChildren) {
+      newItems = [...items, ...normalizeResponse(posts)];
+    }
 
     setItems(newItems);
 
-    setHasNextPage(true);
+    setHasNextPage(hasChildren);
     setIsNextPageLoading(false);
   };
 
   return (
     <div className="app">
-      <ListLoader
+      <PostList
         hasNextPage={hasNextPage}
         isNextPageLoading={isNextPageLoading}
         items={items}
         loadNextPage={_loadNextPage}
-      ></ListLoader>
+      />
       <style jsx>
         {`
           .app {
-            padding: 0.5em;
+            padding: 0.2em;
           }
-          @media (min-width: 425px) {
+          @media (min-width: 426px) {
             .app {
               padding: 1em;
               max-width: 1280px;
@@ -79,10 +88,10 @@ const SubReddit: NextPage<{ data: Post[] }> = ({ data }) => {
 };
 
 SubReddit.getInitialProps = async ({ query }) => {
-  const res = await fetch(`https://www.reddit.com/r/${query.subreddit}.json`);
-  const json = await res.json();
+  const { subreddit, after = "" } = query;
 
-  return { data: normalizeResponse(json) };
+  const posts = await fetchPosts({ subreddit, after });
+  return { data: normalizeResponse(posts), subreddit };
 };
 
 export default SubReddit;

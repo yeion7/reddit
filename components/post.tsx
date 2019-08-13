@@ -172,4 +172,4 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
   );
 };
 
-export default Post;
+export default React.memo<ReturnType<typeof parsePost>>(Post);

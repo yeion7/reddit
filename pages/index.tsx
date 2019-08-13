@@ -1,8 +1,9 @@
 import React from "react";
 import Router from "next/router";
+import { NextPageContext } from "next";
 
 class Index extends React.Component {
-  static async getInitialProps({ res }) {
+  public static async getInitialProps({ res }: NextPageContext) {
     if (res) {
       res.writeHead(302, {
         Location: "/r/all"

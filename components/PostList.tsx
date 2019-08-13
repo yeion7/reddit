@@ -3,7 +3,7 @@ import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import Post from "./post";
 
-function ListLoader({ hasNextPage, isNextPageLoading, items, loadNextPage }) {
+function PostList({ hasNextPage, isNextPageLoading, items, loadNextPage }) {
   const itemCount = hasNextPage ? items.length + 1 : items.length;
 
   const loadMoreItems = isNextPageLoading ? () => {} : loadNextPage;
@@ -44,4 +44,4 @@ function ListLoader({ hasNextPage, isNextPageLoading, items, loadNextPage }) {
   );
 }
 
-export default ListLoader;
+export default PostList;
