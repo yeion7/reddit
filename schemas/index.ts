@@ -37,6 +37,7 @@ export const schemaComments = {
 export const parsePost = (rawPost: RawEntry) => {
   return {
     id: rawPost.id,
+    name: rawPost.name,
     ups: rawPost.ups,
     title: rawPost.title,
     subreddit: rawPost.subreddit,

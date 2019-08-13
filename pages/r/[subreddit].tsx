@@ -1,22 +1,47 @@
-import React from "react";
-import "isomorphic-unfetch";
+import React, { PureComponent } from "react";
 import { NextPage } from "next";
-import Post from "../../components/post";
-import { RedditResponse } from "../../types/reddit";
-import { schemaPosts, parsePost } from "../../schemas";
+import "isomorphic-unfetch";
 import { normalize } from "normalizr";
 
-const SubReddit: NextPage<{ data: RedditResponse }> = ({ data }) => {
-  const { entities } = normalize<ReturnType<typeof parsePost>>(
-    data,
-    schemaPosts
-  );
+import ListLoader from "../../components/InfinityLoader";
+import Post from "../../components/post";
+import { RedditResponse } from "../../types/reddit";
+
+import { schemaPosts, parsePost } from "../../schemas";
+
+type Post = ReturnType<typeof parsePost>;
+const normalizeResponse = data =>
+  Object.values(normalize<Post>(data, schemaPosts).entities.posts);
+
+const SubReddit: NextPage<{ data: Post[] }> = ({ data }) => {
+  const [isNextPageLoading, setIsNextPageLoading] = React.useState(false);
+  const [hasNextPage, setHasNextPage] = React.useState(true);
+  const [items, setItems] = React.useState(data);
+
+  const _loadNextPage = async () => {
+    setIsNextPageLoading(true);
+    const after = items[items.length - 1].name;
+
+    const res = await fetch(
+      `https://www.reddit.com/r/all.json?after=${after}&dist=25`
+    );
+    const json: RedditResponse = await res.json();
+    const newItems = [...items, ...normalizeResponse(json)];
+
+    setItems(newItems);
+
+    setHasNextPage(true);
+    setIsNextPageLoading(false);
+  };
 
   return (
     <div className="app">
-      {Object.values(entities.posts).map(post => (
-        <Post key={post.id} {...post} />
-      ))}
+      <ListLoader
+        hasNextPage={hasNextPage}
+        isNextPageLoading={isNextPageLoading}
+        items={items}
+        loadNextPage={_loadNextPage}
+      ></ListLoader>
       <style jsx>
         {`
           .app {
@@ -54,21 +79,10 @@ const SubReddit: NextPage<{ data: RedditResponse }> = ({ data }) => {
 };
 
 SubReddit.getInitialProps = async ({ query }) => {
-  const config: RequestInit = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    }
-  };
-
-  const res = await fetch(
-    `https://www.reddit.com/r/${query.subreddit}.json`,
-    config
-  );
+  const res = await fetch(`https://www.reddit.com/r/${query.subreddit}.json`);
   const json = await res.json();
 
-  return { data: json };
+  return { data: normalizeResponse(json) };
 };
 
 export default SubReddit;

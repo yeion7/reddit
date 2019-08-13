@@ -70,7 +70,7 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
             background: #fff;
             color: rgb(135, 138, 140);
             cursor: pointer;
-            height: 50px;
+            height: 70px;
             display: flex;
             flex-direction: row;
           }
@@ -116,7 +116,7 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
           .count {
             color: rgb(26, 26, 27);
             text-align: center;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 700;
             word-break: normal;
             display: none;
