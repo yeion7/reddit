@@ -1,15 +1,16 @@
 import React from "react";
+import "isomorphic-unfetch";
 import { NextPage } from "next";
 import Item from "../../components/item";
-import Comment from "../../components/comment";
+import { RedditResponse } from "../../types/reddit";
 
-const Home: NextPage = () => {
+const SubReddit: NextPage<{ data: RedditResponse }> = ({ data }) => {
+  console.log(data);
   return (
     <div className="app">
-      <Item></Item>
-      <div style={{ margin: "1em" }}>
-        <Comment child={<Comment child={<Comment />} />} />
-      </div>
+      {data.data.children.map(child => (
+        <Item key={child.data.id} />
+      ))}
       <style jsx>
         {`
           .app {
@@ -46,4 +47,22 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+SubReddit.getInitialProps = async ({ query }) => {
+  const config: RequestInit = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    }
+  };
+
+  const res = await fetch(
+    `https://www.reddit.com/r/${query.subreddit}.json`,
+    config
+  );
+  const json = await res.json();
+
+  return { data: json };
+};
+
+export default SubReddit;
