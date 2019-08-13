@@ -1,7 +1,7 @@
 import React from "react";
 import { NextPage } from "next";
-import Item from "../components/item";
-import Comment from "../components/comment";
+import Item from "../../components/item";
+import Comment from "../../components/comment";
 
 const Home: NextPage = () => {
   return (

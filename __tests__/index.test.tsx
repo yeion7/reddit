@@ -1,5 +1,5 @@
 import React from "react";
-import Home from "../pages";
+import Home from "../pages/r/[subreddit]";
 import { render } from "@testing-library/react";
 
 describe("index", () => {
