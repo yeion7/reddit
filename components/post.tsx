@@ -13,7 +13,11 @@ const ICONS = {
   self: "📝"
 };
 
-const Post: React.FC<ReturnType<typeof parsePost>> = ({
+type PostType = ReturnType<typeof parsePost>;
+const Post: React.FC<
+  PostType & { togglePost?: any; opened?: boolean; index?: number }
+> = ({
+  id,
   ups,
   title,
   subreddit,
@@ -21,50 +25,56 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
   created,
   comments,
   postHint,
-  permalink
+  permalink,
+  togglePost,
+  index
 }) => {
   return (
     <div className="container">
-      <div className="actions">
-        <button aria-label="upvote" className="vote">
-          ⬆️
-        </button>
-        <span className="count">{nFormatter(ups)}</span>
-        <button aria-label="downvote" className="vote">
-          ⬇️
-        </button>
-      </div>
-      <div className="content">
-        <button className="preview">{ICONS[postHint] || "😱"}</button>
-        <div className="info">
-          <div>
-            <Link href={permalink}>
-              <h3 className="title">{title}</h3>
-            </Link>
+      <div className="postRow">
+        <div className="actions">
+          <button aria-label="upvote" className="vote">
+            ⬆️
+          </button>
+          <span className="count">{nFormatter(ups)}</span>
+          <button aria-label="downvote" className="vote">
+            ⬇️
+          </button>
+        </div>
+        <div className="content">
+          <button className="preview" onClick={() => togglePost(id, index)}>
+            {ICONS[postHint] || "😱"}
+          </button>
+          <div className="info">
             <div>
-              <Link href={`/r/${subreddit}`}>
-                <a className="subreddit">{`r/${subreddit}`}</a>
+              <Link href={permalink}>
+                <h3 className="title">{title}</h3>
               </Link>
-              <span role="presentation"> . </span>
-              <span>Posted by </span>
-              <span>{`u/${author}`}</span>
-              <span role="presentation"> . </span>
-              <time dateTime={fromUnixTime(created).toLocaleString()}>
-                {formatDistanceToNow(fromUnixTime(created), {
-                  locale: es
-                })}
-              </time>
+              <div>
+                <Link href={`/r/${subreddit}`}>
+                  <a className="subreddit">{`r/${subreddit}`}</a>
+                </Link>
+                <span role="presentation"> . </span>
+                <span>Posted by </span>
+                <span>{`u/${author}`}</span>
+                <span role="presentation"> . </span>
+                <time dateTime={fromUnixTime(created).toLocaleString()}>
+                  {formatDistanceToNow(fromUnixTime(created), {
+                    locale: es
+                  })}
+                </time>
+              </div>
             </div>
-          </div>
-          <div>
-            <span className="comments">
-              <i>💬</i>
-              {nFormatter(comments)}
-            </span>
+            <div>
+              <span className="comments">
+                <i>💬</i>
+                {nFormatter(comments)}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-
+      <p>hila</p>
       <style jsx>
         {`
           .container {
@@ -72,6 +82,9 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
             background: #fff;
             color: rgb(135, 138, 140);
             cursor: pointer;
+            height: 100%;
+          }
+          .postRow {
             height: 70px;
             display: flex;
             flex-direction: row;
