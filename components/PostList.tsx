@@ -62,22 +62,24 @@ function PostList({ hasNextPage, isNextPageLoading, items, loadNextPage }) {
       itemCount={itemCount}
       loadMoreItems={loadMoreItems}
     >
-      {({ onItemsRendered, ref }) => (
-        <List
-          itemSize={getSize}
-          height={70 * 20}
-          itemCount={itemCount}
-          onItemsRendered={onItemsRendered}
-          ref={node => {
-            // @ts-ignore
-            ref = node;
-            listRef.current = node;
-          }}
-          width="100%"
-        >
-          {Item}
-        </List>
-      )}
+      {({ onItemsRendered, ref }) => {
+        return (
+          <List
+            itemSize={getSize}
+            height={70 * 20}
+            itemCount={itemCount}
+            onItemsRendered={onItemsRendered}
+            ref={node => {
+              // @ts-ignore
+              ref(node);
+              listRef.current = node;
+            }}
+            width="100%"
+          >
+            {Item}
+          </List>
+        );
+      }}
     </InfiniteLoader>
   );
 }
