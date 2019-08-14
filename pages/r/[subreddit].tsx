@@ -4,14 +4,14 @@ import { normalize } from "normalizr";
 
 import PostList from "../../components/PostList";
 import Post from "../../components/post";
-import { RedditResponse } from "../../types/reddit";
+import { PostsResponse } from "../../types/reddit";
 
 import { schemaPosts, parsePost } from "../../schemas";
 import { fetchPosts } from "../../api";
 
 type Post = ReturnType<typeof parsePost>;
 
-const normalizeResponse = (data: RedditResponse): Post[] =>
+const normalizeResponse = (data: PostsResponse): Post[] =>
   Object.values(normalize<Post>(data, schemaPosts).entities.posts);
 
 const SubReddit: NextPage<{ data: Post[]; subreddit: string | string[] }> = ({
@@ -29,7 +29,7 @@ const SubReddit: NextPage<{ data: Post[]; subreddit: string | string[] }> = ({
     setIsNextPageLoading(true);
     const after = items[items.length - 1].name;
 
-    const posts: RedditResponse = await fetchPosts({ subreddit, after });
+    const posts: PostsResponse = await fetchPosts({ subreddit, after });
     const hasChildren = posts.data.children.length > 0;
     let newItems = items;
 

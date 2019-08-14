@@ -1,13 +1,25 @@
 import { schema } from "normalizr";
-import { RawEntry } from "../types/reddit";
+import { RawEntry, RawComment } from "../types/reddit";
+
+export const parseComment = (rawComment: RawComment) => {
+  return {
+    id: rawComment.id,
+    author: rawComment.author,
+    body: rawComment.body,
+    name: rawComment.name,
+    created: rawComment.created_utc,
+    depth: rawComment.depth,
+    ups: rawComment.ups,
+    replies: rawComment.replies,
+    children: rawComment.children
+  };
+};
 
 const comment = new schema.Entity(
   "comments",
   {},
   {
-    processStrategy(value) {
-      return value;
-    }
+    processStrategy: parseComment
   }
 );
 

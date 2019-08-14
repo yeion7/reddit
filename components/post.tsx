@@ -2,9 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { parsePost } from "../schemas";
 import { nFormatter } from "../utils";
-import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import fromUnixTime from "date-fns/fromUnixTime";
-import es from "date-fns/locale/es/index";
+import { formatDistanceToNow, fromUnixTime } from "date-fns";
+import { es } from "date-fns/locale";
 
 const ICONS = {
   image: "🗾",

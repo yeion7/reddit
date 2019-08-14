@@ -1,4 +1,4 @@
-export interface RedditResponse {
+export interface PostsResponse {
   kind: string;
   data: {
     after: string;
@@ -191,4 +191,99 @@ interface Mediaembed {}
 interface Linkflairrichtext {
   e: string;
   t: string;
+}
+
+export interface CommentsResponse {
+  kind: string;
+  data: RawComment;
+}
+
+export interface RawComment {
+  total_awards_received?: number;
+  approved_at_utc?: any;
+  ups?: number;
+  mod_reason_by?: any;
+  banned_by?: any;
+  author_flair_type?: string;
+  removal_reason?: any;
+  link_id?: string;
+  author_flair_template_id?: any;
+  likes?: any;
+  no_follow?: boolean;
+  replies?: Reply | string;
+  user_reports?: any[];
+  saved?: boolean;
+  id: string;
+  banned_at_utc?: any;
+  mod_reason_title?: any;
+  gilded?: number;
+  archived?: boolean;
+  report_reasons?: any;
+  author?: string;
+  can_mod_post?: boolean;
+  send_replies?: boolean;
+  parent_id: string;
+  score?: number;
+  author_fullname?: string;
+  approved_by?: any;
+  all_awardings?: any[];
+  subreddit_id?: string;
+  body?: string;
+  edited?: boolean | number;
+  author_flair_css_class?: string;
+  is_submitter?: boolean;
+  downs?: number;
+  author_flair_richtext?: Authorflairrichtext[];
+  author_patreon_flair?: boolean;
+  collapsed_reason?: any;
+  body_html?: string;
+  stickied?: boolean;
+  subreddit_type?: string;
+  can_gild?: boolean;
+  gildings?: Gildings;
+  author_flair_text_color?: string;
+  score_hidden?: boolean;
+  permalink?: string;
+  num_reports?: any;
+  locked?: boolean;
+  name: string;
+  created?: number;
+  subreddit?: string;
+  author_flair_text?: string;
+  collapsed?: boolean;
+  created_utc?: number;
+  subreddit_name_prefixed?: string;
+  controversiality?: number;
+  depth: number;
+  author_flair_background_color?: string;
+  mod_reports?: any[];
+  mod_note?: any;
+  distinguished?: any;
+  count?: number;
+  children?: string[];
+}
+
+interface Authorflairrichtext {
+  a?: string;
+  u?: string;
+  e: string;
+  t?: string;
+}
+
+interface Reply {
+  kind: string;
+  data: Data;
+}
+
+interface Data {
+  modhash: string;
+  dist?: any;
+  children: Child[];
+  after?: any;
+  before?: any;
+}
+
+interface Child {
+  kind: string;
+  data: string;
 }

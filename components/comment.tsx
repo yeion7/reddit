@@ -1,44 +1,70 @@
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import Link from "next/link";
 
-const Comment: React.FC<{
-  child?: React.ReactNode | null;
-}> = ({ child = null }) => {
+import { parseComment } from "../schemas";
+import { formatDistanceToNow, fromUnixTime } from "date-fns";
+import { es } from "date-fns/locale";
+import { nFormatter } from "../utils";
+
+type CommentType = ReturnType<typeof parseComment>;
+
+const Comment: React.FC<
+  {
+    comments: { [key: string]: CommentType };
+  } & CommentType
+> = ({ comments, id, body, ups, created, author, children, replies }) => {
+  const [open, setOpen] = React.useState(true);
+
   return (
     <div className="comment">
-      <div className="actions">
-        <button aria-label="upvote" className="vote">
-          ⬆️
-        </button>
-        <button aria-label="downvote" className="vote">
-          ⬇️
-        </button>
-      </div>
-      <div className="content">
-        <div className="info">
-          <a className="user">u/ajp12290</a>
-          <span role="presentation"> . </span>
-          <span>17K points</span>
-          <span role="presentation"> . </span>
-          <span>3 hours ago</span>
-        </div>
-        <p className="text">
-          Honestly I'm a banger of said drum. Linux is glorious. But you know
-          what? I would recommend that very few people use Linux. In fact I use
-          Windows daily. Why? Because sometimes I don't want to deal with shit.
-          Sometimes I want to just turn a computer on and have it work and be
-          compatible with everything and work very easily. Linux is great. But
-          it has serious downsides just like every other OS. Anyone who ignores
-          this is an idiot.
-        </p>
-        {child}
-      </div>
+      {children ? (
+        <Link href={id}>
+          <a className="showMore">Ver más ({children.length})</a>
+        </Link>
+      ) : (
+        <>
+          <div className="actions">
+            <button aria-label="upvote" className="vote">
+              ⬆️
+            </button>
+            <button aria-label="downvote" className="vote">
+              ⬇️
+            </button>
+          </div>
+          <div className="content">
+            <div className="info">
+              {replies && (
+                <button onClick={() => setOpen(!open)}>
+                  [{`${open ? "-" : "+"}`}]
+                </button>
+              )}
+              <a className="user">{author}</a>
+              <span role="presentation"> . </span>
+              <span>{`${nFormatter(ups)} points`}</span>
+              <span role="presentation"> . </span>
+              <span>
+                {formatDistanceToNow(fromUnixTime(created), {
+                  locale: es
+                })}
+              </span>
+            </div>
+            <ReactMarkdown className="text" source={body} />
+            {typeof replies === "object" &&
+              open &&
+              replies.data.children.map(({ data }) => (
+                <Comment key={data} comments={comments} {...comments[data]} />
+              ))}
+          </div>
+        </>
+      )}
+
       <style jsx>
         {`
           .comment {
             overflow: hidden;
             background: #fff;
             color: rgb(135, 138, 140);
-            cursor: pointer;
             display: flex;
             flex-direction: row;
             margin-top: 16px;
@@ -49,6 +75,20 @@ const Comment: React.FC<{
             margin: 0 6px;
             max-height: 40px;
             min-width: 24px;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .showMore {
+            margin-left: 0.3em;
+            font-size: 0.9em;
+            font-weight: 700;
+            color: inherit;
+            text-decoration: none;
+          }
+
+          .showMore:hover {
+            text-decoration: underline;
           }
 
           .vote {
