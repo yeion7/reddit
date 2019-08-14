@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import Link from "next/link";
 import { parsePost } from "../schemas";
 import { nFormatter } from "../utils";
@@ -13,22 +13,63 @@ const ICONS = {
   self: "📝"
 };
 
+const LinkPost = ({ title, url, thumbnail }) => (
+  <Fragment>
+    <div>
+      <h3 className="title">{title}</h3>
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        {url}
+      </a>
+    </div>
+    <a href={url} target="_blank" rel="noopener noreferrer">
+      <img src={thumbnail} alt={title} style={{ borderRadius: 4 }} />
+    </a>
+  </Fragment>
+);
+
+const ImagePost = ({ permalink, previews }) => (
+  <Link href={permalink}>
+    <a style={{ margin: "auto" }}>
+      {previews.images.map(preview => (
+        <img
+          style={{ height: 400 }}
+          key={preview.id}
+          src={preview.source.url.replace("&amp;", "&")}
+          alt=""
+          srcSet={preview.resolutions
+            .map(prev => `${prev.url.replace("&amp;", "&")} ${prev.width}px`)
+            .join("\n")}
+        />
+      ))}
+    </a>
+  </Link>
+);
+
+const PREVIEW = {
+  image: ImagePost,
+  link: LinkPost,
+  "hosted:video": "📼",
+  "rich:video": "📼",
+  self: "📝"
+};
+
 type PostType = ReturnType<typeof parsePost>;
 const Post: React.FC<
   PostType & { togglePost?: any; opened?: boolean; index?: number }
-> = ({
-  id,
-  ups,
-  title,
-  subreddit,
-  author,
-  created,
-  comments,
-  postHint,
-  permalink,
-  togglePost,
-  index
-}) => {
+> = ({ opened, togglePost, index, ...post }) => {
+  const {
+    id,
+    ups,
+    title,
+    subreddit,
+    author,
+    created,
+    comments,
+    postHint,
+    permalink
+  } = post;
+  const Preview = PREVIEW[postHint];
+
   return (
     <div className="container">
       <div className="postRow">
@@ -74,7 +115,18 @@ const Post: React.FC<
           </div>
         </div>
       </div>
-      <p>hila</p>
+      {opened && (
+        <div
+          className="view"
+          style={{
+            display: "flex",
+            padding: "1em",
+            justifyContent: "space-between"
+          }}
+        >
+          <Preview {...post} />
+        </div>
+      )}
       <style jsx>
         {`
           .container {
@@ -119,6 +171,7 @@ const Post: React.FC<
             width: 24px;
             flex: 0 0 24px;
             margin: 0 8px;
+            text-decoration: none;
           }
 
           .info {
@@ -147,6 +200,10 @@ const Post: React.FC<
             color: #222;
           }
 
+          .subreddit:hover {
+            text-decoration: underline;
+          }
+
           .comments {
             display: none;
             padding: 5px;
@@ -162,9 +219,6 @@ const Post: React.FC<
             color: inherit;
             cursor: pointer;
             padding: initial;
-          }
-          a:hover {
-            text-decoration: underline;
           }
 
           @media (min-width: 425px) {
