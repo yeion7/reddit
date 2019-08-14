@@ -56,7 +56,8 @@ export const parsePost = (rawPost: RawEntry) => {
     author: rawPost.author,
     created: rawPost.created_utc,
     comments: rawPost.num_comments,
-    postHint: rawPost.post_hint
+    postHint: rawPost.post_hint,
+    permalink: rawPost.permalink
   };
 };
 

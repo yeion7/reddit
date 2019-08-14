@@ -20,7 +20,8 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
   author,
   created,
   comments,
-  postHint
+  postHint,
+  permalink
 }) => {
   return (
     <div className="container">
@@ -37,14 +38,16 @@ const Post: React.FC<ReturnType<typeof parsePost>> = ({
         <button className="preview">{ICONS[postHint] || "😱"}</button>
         <div className="info">
           <div>
-            <h3 className="title">{title}</h3>
+            <Link href={permalink}>
+              <h3 className="title">{title}</h3>
+            </Link>
             <div>
               <Link href={`/r/${subreddit}`}>
                 <a className="subreddit">{`r/${subreddit}`}</a>
               </Link>
               <span role="presentation"> . </span>
               <span>Posted by </span>
-              <a>{`u/${author}`}</a>
+              <span>{`u/${author}`}</span>
               <span role="presentation"> . </span>
               <time dateTime={fromUnixTime(created).toLocaleString()}>
                 {formatDistanceToNow(fromUnixTime(created), {

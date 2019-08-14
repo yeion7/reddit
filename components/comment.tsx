@@ -49,7 +49,9 @@ const Comment: React.FC<
                 })}
               </span>
             </div>
-            <ReactMarkdown className="text" source={body} />
+            <div className="text">
+              <ReactMarkdown source={body} />
+            </div>
             {typeof replies === "object" &&
               open &&
               replies.data.children.map(({ data }) => (
