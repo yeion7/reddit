@@ -17,7 +17,7 @@ const ICONS = {
 const UnknowHint = ({ title, selftext, permalink }: PostType) => {
   return (
     <div>
-      <Link href={permalink}>
+      <Link href="/r/[subreddit]/comments/[user]/[postId]" as={permalink}>
         <a>
           <h4>{title}</h4>
         </a>
@@ -53,7 +53,7 @@ const ImagePost = ({ permalink, previews, title, url }: PostType) => {
   const isGif = url && url.includes("gif");
 
   return (
-    <Link href={permalink}>
+    <Link href="/r/[subreddit]/comments/[user]/[postId]" as={permalink}>
       <a style={{ margin: "auto" }}>
         <picture>
           {previews.images.map(preview => (
@@ -78,7 +78,7 @@ const ImagePost = ({ permalink, previews, title, url }: PostType) => {
   );
 };
 
-const VideoPost = ({ previews, media, url }: PostType) => {
+const VideoPost = ({ previews, media }: PostType) => {
   if (media && media.reddit_video) {
     return (
       <video
@@ -148,11 +148,14 @@ const Post: React.FC<Props> = ({ opened, togglePost, index, ...post }) => {
           </button>
           <div className="info">
             <div>
-              <Link href={permalink}>
+              <Link
+                href="/r/[subreddit]/comments/[user]/[postId]"
+                as={permalink}
+              >
                 <h3 className="title">{title}</h3>
               </Link>
               <div>
-                <Link href={`/r/${subreddit}`}>
+                <Link href="/r/[subreddit]" as={`/r/${subreddit}`}>
                   <a className="subreddit">{`r/${subreddit}`}</a>
                 </Link>
                 <span role="presentation"> . </span>

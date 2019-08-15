@@ -1,6 +1,7 @@
 import React from "react";
 import { NextPage } from "next";
 import { normalize } from "normalizr";
+import Head from "next/head";
 
 import Post from "../../../../../components/post";
 import Comment from "../../../../../components/comment";
@@ -47,6 +48,9 @@ const PostPage: NextPage<Props> = ({ data }) => {
 
   return (
     <div className="app">
+      <Head>
+        <link rel="icon" type="image/png" href="/static/favicon.png" />
+      </Head>
       <div style={{ background: "#fff" }}>
         <Post {...post} opened />
         {data.result.comments.data.children.map(({ data: commentId }) => (
@@ -93,8 +97,11 @@ const PostPage: NextPage<Props> = ({ data }) => {
   );
 };
 
-PostPage.getInitialProps = async ({ req }) => {
-  const [posts, comments] = await fetchPost(req.url);
+PostPage.getInitialProps = async ({ query }) => {
+  const { subreddit, user, postId } = query;
+  const [posts, comments] = await fetchPost(
+    `/r/${subreddit}/comments/${user}/${postId}.json`
+  );
 
   return {
     data: normalizeResponse({ posts, comments }),

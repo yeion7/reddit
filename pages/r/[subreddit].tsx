@@ -1,5 +1,7 @@
 import React from "react";
 import { NextPage } from "next";
+import Head from "next/head";
+
 import { normalize } from "normalizr";
 
 import PostList from "../../components/PostList";
@@ -45,6 +47,10 @@ const SubReddit: NextPage<{ data: Post[]; subreddit: string | string[] }> = ({
 
   return (
     <div className="app">
+      <Head>
+        <link rel="icon" type="image/png" href="/static/favicon.png" />
+        <title>{`r/${subreddit}`}</title>
+      </Head>
       <PostList
         hasNextPage={hasNextPage}
         isNextPageLoading={isNextPageLoading}
