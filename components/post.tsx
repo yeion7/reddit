@@ -5,6 +5,17 @@ import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { es } from "date-fns/locale";
 
 import {
+  FaArrowCircleUp,
+  FaArrowCircleDown,
+  FaRegFileAlt,
+  FaRegImage,
+  FaRegFileVideo,
+  FaRegBookmark,
+  FaRegCommentAlt,
+  FaRegNewspaper
+} from "react-icons/fa";
+
+import {
   ImagePost,
   LinkPost,
   VideoPost,
@@ -14,11 +25,11 @@ import {
 import { Post } from "../types/normalized";
 
 const ICONS = {
-  image: "🗾",
-  link: "🔗",
-  "hosted:video": "📼",
-  "rich:video": "📼",
-  self: "📝"
+  image: FaRegImage,
+  link: FaRegBookmark,
+  "hosted:video": FaRegFileVideo,
+  "rich:video": FaRegFileVideo,
+  self: FaRegFileAlt
 };
 
 const PREVIEW = {
@@ -49,23 +60,23 @@ const PostContent: React.FC<Props> = ({
     permalink
   } = post;
   const Preview = PREVIEW[postHint] || UnknowHint;
-  const iconPreview = ICONS[postHint] || "📑";
+  const IconPreview = ICONS[postHint] || FaRegNewspaper;
 
   return (
-    <div className="container">
+    <article className="container">
       <div className="postRow">
         <div className="actions">
           <button aria-label="upvote" className="vote">
-            ⬆️
+            <FaArrowCircleUp size={14} />
           </button>
           <span className="count">{nFormatter(ups)}</span>
           <button aria-label="downvote" className="vote">
-            ⬇️
+            <FaArrowCircleDown size={14} />
           </button>
         </div>
         <div className="content">
           <button className="preview" onClick={() => togglePost(id, index)}>
-            {iconPreview}
+            <IconPreview size={14} />
           </button>
           <div className="info">
             <div>
@@ -92,7 +103,7 @@ const PostContent: React.FC<Props> = ({
             </div>
             <div>
               <span className="comments">
-                <i>💬</i>
+                <FaRegCommentAlt size={12} style={{ marginRight: 5 }} />
                 {nFormatter(comments)}
               </span>
             </div>
@@ -210,7 +221,8 @@ const PostContent: React.FC<Props> = ({
               flex-direction: row;
             }
             .comments {
-              display: initial;
+              display: flex;
+              align-items: center;
             }
             .count {
               display: initial;
@@ -221,7 +233,7 @@ const PostContent: React.FC<Props> = ({
           }
         `}
       </style>
-    </div>
+    </article>
   );
 };
 

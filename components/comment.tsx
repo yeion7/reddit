@@ -7,6 +7,8 @@ import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { es } from "date-fns/locale";
 import { nFormatter } from "../utils";
 
+import { FaArrowCircleUp, FaArrowCircleDown } from "react-icons/fa";
+
 type CommentType = ReturnType<typeof parseComment>;
 
 const Comment: React.FC<
@@ -26,10 +28,10 @@ const Comment: React.FC<
         <>
           <div className="actions">
             <button aria-label="upvote" className="vote">
-              ⬆️
+              <FaArrowCircleUp size={14} />
             </button>
             <button aria-label="downvote" className="vote">
-              ⬇️
+              <FaArrowCircleDown size={14} />
             </button>
           </div>
           <div className="content">
