@@ -7,33 +7,19 @@ import Post from "../../../../../components/post";
 import Comment from "../../../../../components/comment";
 import { PostsResponse, CommentsResponse } from "../../../../../types/reddit";
 
-import {
-  schemaPosts,
-  parsePost,
-  schemaComments,
-  parseComment
-} from "../../../../../schemas";
+import { schemaPosts, schemaComments } from "../../../../../schemas";
 import { fetchPost } from "../../../../../api";
-import { Normalized } from "../../../../../types/normalized";
-
-type Post = ReturnType<typeof parsePost>;
-type Comment = ReturnType<typeof parseComment>;
+import {
+  Normalized,
+  NormalizedEntities,
+  NormalizedResult
+} from "../../../../../types/normalized";
 
 const normalizeResponse = (data: {
   comments: CommentsResponse;
   posts: PostsResponse;
 }) => {
-  return normalize<
-    {
-      comments: typeof schemaComments;
-      posts: typeof schemaPosts;
-    },
-    {
-      posts: { [key: string]: Post };
-      comments: { [key: string]: Comment };
-    },
-    Normalized
-  >(data, {
+  return normalize<NormalizedEntities, NormalizedResult, Normalized>(data, {
     comments: schemaComments,
     posts: schemaPosts
   });

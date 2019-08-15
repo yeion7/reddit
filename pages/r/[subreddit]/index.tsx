@@ -1,17 +1,15 @@
 import React from "react";
 import { NextPage } from "next";
 import Head from "next/head";
-
 import { normalize } from "normalizr";
 
-import PostList from "../../components/PostList";
-import Post from "../../components/post";
-import { PostsResponse } from "../../types/reddit";
+import PostList from "../../../components/PostList";
 
-import { schemaPosts, parsePost } from "../../schemas";
-import { fetchPosts } from "../../api";
+import { schemaPosts } from "../../../schemas";
+import { fetchPosts } from "../../../api";
 
-type Post = ReturnType<typeof parsePost>;
+import { PostsResponse } from "../../../types/reddit";
+import { Post } from "../../../types/normalized";
 
 const normalizeResponse = (data: PostsResponse): Post[] =>
   Object.values(normalize<Post>(data, schemaPosts).entities.posts);
@@ -25,7 +23,7 @@ const SubReddit: NextPage<{ data: Post[]; subreddit: string | string[] }> = ({
   const [items, setItems] = React.useState(data);
 
   /**
-   * use for load new posts when user scroll down
+   * load new posts
    */
   const _loadNextPage = async () => {
     setIsNextPageLoading(true);

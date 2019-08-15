@@ -23,6 +23,9 @@ const comment = new schema.Entity(
   }
 );
 
+/**
+ * define a nested structure
+ */
 comment.define({
   replies: {
     data: {
@@ -45,7 +48,6 @@ export const schemaComments = {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const parsePost = (rawPost: RawEntry) => {
   return {
     id: rawPost.id,

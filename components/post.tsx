@@ -1,10 +1,17 @@
-import React, { Fragment } from "react";
-import ReactMarkdown from "react-markdown";
+import React from "react";
 import Link from "next/link";
-import { parsePost } from "../schemas";
-import { nFormatter, decodeHTML, cleanUrl } from "../utils";
+import { nFormatter } from "../utils";
 import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { es } from "date-fns/locale";
+
+import {
+  ImagePost,
+  LinkPost,
+  VideoPost,
+  SelfPost,
+  UnknowHint
+} from "./PostComponents";
+import { Post } from "../types/normalized";
 
 const ICONS = {
   image: "🗾",
@@ -12,97 +19,6 @@ const ICONS = {
   "hosted:video": "📼",
   "rich:video": "📼",
   self: "📝"
-};
-
-const UnknowHint = ({ title, selftext, permalink }: PostType) => {
-  return (
-    <div>
-      <Link href="/r/[subreddit]/comments/[user]/[postId]" as={permalink}>
-        <a>
-          <h4>{title}</h4>
-        </a>
-      </Link>
-      <ReactMarkdown>{selftext}</ReactMarkdown>
-    </div>
-  );
-};
-
-const SelfPost = ({ selftext }: PostType) => {
-  return (
-    <div style={{ overflowY: "scroll", height: 400, padding: 10 }}>
-      <ReactMarkdown>{selftext}</ReactMarkdown>;
-    </div>
-  );
-};
-
-const LinkPost = ({ title, url, thumbnail }: PostType) => (
-  <Fragment>
-    <div>
-      <h3 className="title">{title}</h3>
-      <a href={url} target="_blank" rel="noopener noreferrer">
-        {url}
-      </a>
-    </div>
-    <a href={url} target="_blank" rel="noopener noreferrer">
-      <img src={thumbnail} alt={title} style={{ borderRadius: 4 }} />
-    </a>
-  </Fragment>
-);
-
-const ImagePost = ({ permalink, previews, title, url }: PostType) => {
-  const isGif = url && url.includes("gif");
-
-  return (
-    <Link href="/r/[subreddit]/comments/[user]/[postId]" as={permalink}>
-      <a style={{ margin: "auto" }}>
-        <picture>
-          {previews.images.map(preview => (
-            <Fragment key={preview.id}>
-              <img
-                style={{ height: 400 }}
-                src={isGif ? url : cleanUrl(preview.source.url)}
-                alt={title}
-              />
-              {preview.resolutions.map(prev => (
-                <source
-                  media={`(min-width: ${prev.width}px)`}
-                  key={prev.url}
-                  src={`${cleanUrl(prev.url)}`}
-                />
-              ))}
-            </Fragment>
-          ))}
-        </picture>
-      </a>
-    </Link>
-  );
-};
-
-const VideoPost = ({ previews, media }: PostType) => {
-  if (media && media.reddit_video) {
-    return (
-      <video
-        poster={cleanUrl(previews.images[0].source.url)}
-        src={media.reddit_video.fallback_url}
-        controls
-        muted={false}
-        height={400}
-        style={{ margin: "auto" }}
-      >
-        <source src={media.reddit_video.dash_url} />
-        <source src={media.reddit_video.hls_url} />
-      </video>
-    );
-  }
-
-  return (
-    <div
-      style={{ height: 400, margin: "auto" }}
-      dangerouslySetInnerHTML={{
-        __html: decodeHTML(media.oembed.html)
-      }}
-    ></div>
-  );
 };
 
 const PREVIEW = {
@@ -113,9 +29,14 @@ const PREVIEW = {
   self: SelfPost
 };
 
-type PostType = ReturnType<typeof parsePost>;
-type Props = PostType & { togglePost?: any; opened?: boolean; index?: number };
-const Post: React.FC<Props> = ({ opened, togglePost, index, ...post }) => {
+type Props = Post & { togglePost?: any; opened?: boolean; index?: number };
+
+const PostContent: React.FC<Props> = ({
+  opened,
+  togglePost,
+  index,
+  ...post
+}) => {
   const {
     id,
     ups,
@@ -304,4 +225,4 @@ const Post: React.FC<Props> = ({ opened, togglePost, index, ...post }) => {
   );
 };
 
-export default React.memo<Props>(Post);
+export default React.memo<Props>(PostContent);
