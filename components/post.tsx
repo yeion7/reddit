@@ -22,7 +22,7 @@ import {
   SelfPost,
   UnknowHint
 } from "./PostComponents";
-import { Post } from "../types/normalized";
+import { Post, voteOptions } from "../types/normalized";
 
 const ICONS = {
   image: FaRegImage,
@@ -41,8 +41,8 @@ const PREVIEW = {
 };
 
 type Props = Post & {
-  setVote: any;
-  togglePost?: any;
+  setVote: (id: string, vote: voteOptions) => void;
+  togglePost?: (postId: string, index: number) => void;
   opened?: boolean;
   index?: number;
 };
@@ -108,7 +108,7 @@ const PostContent: React.FC<Props> = ({
               if (previewRef.current) {
                 previewRef.current.focus();
               }
-              togglePost(id, index);
+              togglePost && togglePost(id, index);
             }}
           >
             <IconPreview

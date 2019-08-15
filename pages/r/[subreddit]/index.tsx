@@ -37,7 +37,10 @@ type Action =
   | { type: "vote"; payload: { id: string; vote: voteOptions } }
   | {
       type: "loadMorePosts";
-      payload: { posts: ReturnType<typeof normalizeResponse>; after: string };
+      payload: {
+        posts: ReturnType<typeof normalizeResponse>;
+        after: string;
+      };
     };
 
 function reducer(state: State, action: Action): State {
@@ -118,7 +121,7 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
 
     const posts: PostsResponse = await fetchPosts({
       subreddit,
-      after
+      after: state.after
     });
     const hasChildren = posts.data.children.length > 0;
 
@@ -130,7 +133,7 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
     } else {
       dispach({ type: "endPosts" });
     }
-  }, [after, subreddit]);
+  }, [state.after, subreddit]);
 
   React.useEffect(() => {
     if (!firstUpdate.current) {
