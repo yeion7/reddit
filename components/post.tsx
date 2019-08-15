@@ -59,6 +59,7 @@ const PostContent: React.FC<Props> = ({
     postHint,
     permalink
   } = post;
+  const previewRef = React.useRef<HTMLDivElement>(null);
   const Preview = PREVIEW[postHint] || UnknowHint;
   const IconPreview = ICONS[postHint] || FaRegNewspaper;
 
@@ -67,16 +68,32 @@ const PostContent: React.FC<Props> = ({
       <div className="postRow">
         <div className="actions">
           <button aria-label="upvote" className="vote">
-            <FaArrowCircleUp size={14} />
+            <FaArrowCircleUp size={14} role="presentation" />
           </button>
           <span className="count">{nFormatter(ups)}</span>
           <button aria-label="downvote" className="vote">
-            <FaArrowCircleDown size={14} />
+            <FaArrowCircleDown size={14} role="presentation" />
           </button>
         </div>
         <div className="content">
-          <button className="preview" onClick={() => togglePost(id, index)}>
-            <IconPreview size={14} />
+          <button
+            className="preview"
+            aria-haspopup
+            aria-expanded={opened}
+            aria-controls={`preview-${id}`}
+            onClick={() => {
+              if (previewRef.current) {
+                previewRef.current.focus();
+              }
+              togglePost(id, index);
+            }}
+          >
+            <IconPreview
+              size={14}
+              aria-label={
+                opened ? "ocultar contenido del post" : "ver contenido del post"
+              }
+            />
           </button>
           <div className="info">
             <div>
@@ -88,11 +105,13 @@ const PostContent: React.FC<Props> = ({
               </Link>
               <div>
                 <Link href="/r/[subreddit]" as={`/r/${subreddit}`}>
-                  <a className="subreddit">{`r/${subreddit}`}</a>
+                  <a
+                    aria-label={`subreddit ${subreddit}`}
+                    className="subreddit"
+                  >{`r/${subreddit}`}</a>
                 </Link>
                 <span role="presentation"> . </span>
-                <span>Posted by </span>
-                <span>{`u/${author}`}</span>
+                <span>Publicado por {`u/${author}`}</span>
                 <span role="presentation"> . </span>
                 <time dateTime={fromUnixTime(created).toLocaleString()}>
                   {formatDistanceToNow(fromUnixTime(created), {
@@ -102,26 +121,34 @@ const PostContent: React.FC<Props> = ({
               </div>
             </div>
             <div>
-              <span className="comments">
-                <FaRegCommentAlt size={12} style={{ marginRight: 5 }} />
+              <span
+                className="comments"
+                aria-label={`número comentarios: ${comments}`}
+              >
+                <FaRegCommentAlt
+                  size={12}
+                  style={{ marginRight: 5 }}
+                  role="presentation"
+                />
                 {nFormatter(comments)}
               </span>
             </div>
           </div>
         </div>
       </div>
-      {opened && (
-        <div
-          className="view"
-          style={{
-            display: "flex",
-            padding: "1em",
-            justifyContent: "space-between"
-          }}
-        >
-          <Preview {...post} />
-        </div>
-      )}
+      <div
+        id={`preview-${id}`}
+        className="view"
+        style={{
+          display: "flex",
+          padding: "1em",
+          justifyContent: "space-between"
+        }}
+        ref={previewRef}
+        aria-live="assertive"
+      >
+        {opened && <Preview {...post} />}
+      </div>
       <style jsx>
         {`
           .container {

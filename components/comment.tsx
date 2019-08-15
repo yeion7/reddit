@@ -28,22 +28,29 @@ const Comment: React.FC<
         <>
           <div className="actions">
             <button aria-label="upvote" className="vote">
-              <FaArrowCircleUp size={14} />
+              <FaArrowCircleUp size={14} role="presentation" />
             </button>
             <button aria-label="downvote" className="vote">
-              <FaArrowCircleDown size={14} />
+              <FaArrowCircleDown size={14} role="presentation" />
             </button>
           </div>
           <div className="content">
             <div className="info">
               {replies && (
-                <button onClick={() => setOpen(!open)}>
+                <button
+                  onClick={() => setOpen(!open)}
+                  aria-label={
+                    open ? "ver menos comentarios" : "ver más comentarios"
+                  }
+                >
                   [{`${open ? "-" : "+"}`}]
                 </button>
               )}
               <a className="user">{author}</a>
               <span role="presentation"> . </span>
-              <span>{`${nFormatter(ups)} points`}</span>
+              <span aria-label={`puntos ${ups}`}>{`${nFormatter(
+                ups
+              )} points`}</span>
               <span role="presentation"> . </span>
               <span>
                 {formatDistanceToNow(fromUnixTime(created), {
