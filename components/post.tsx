@@ -40,9 +40,15 @@ const PREVIEW = {
   self: SelfPost
 };
 
-type Props = Post & { togglePost?: any; opened?: boolean; index?: number };
+type Props = Post & {
+  setVote: any;
+  togglePost?: any;
+  opened?: boolean;
+  index?: number;
+};
 
 const PostContent: React.FC<Props> = ({
+  setVote,
   opened,
   togglePost,
   index,
@@ -57,7 +63,8 @@ const PostContent: React.FC<Props> = ({
     created,
     comments,
     postHint,
-    permalink
+    permalink,
+    vote
   } = post;
   const previewRef = React.useRef<HTMLDivElement>(null);
   const Preview = PREVIEW[postHint] || UnknowHint;
@@ -67,12 +74,30 @@ const PostContent: React.FC<Props> = ({
     <article className="container">
       <div className="postRow">
         <div className="actions">
-          <button aria-label="upvote" className="vote">
-            <FaArrowCircleUp size={14} role="presentation" />
+          <button
+            aria-label="upvote"
+            className="vote"
+            disabled={vote === "upvote"}
+            onClick={() => setVote(id, "upvote")}
+          >
+            <FaArrowCircleUp
+              size={14}
+              role="presentation"
+              color={vote === "upvote" ? "#ff895f" : "currentColor"}
+            />
           </button>
           <span className="count">{nFormatter(ups)}</span>
-          <button aria-label="downvote" className="vote">
-            <FaArrowCircleDown size={14} role="presentation" />
+          <button
+            aria-label="downvote"
+            className="vote"
+            disabled={vote === "downvote"}
+            onClick={() => setVote(id, "downvote")}
+          >
+            <FaArrowCircleDown
+              color={vote === "downvote" ? "#ff895f" : "currentColor"}
+              size={14}
+              role="presentation"
+            />
           </button>
         </div>
         <div className="content">

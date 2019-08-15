@@ -3,7 +3,13 @@ import { VariableSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import Post from "./post";
 
-function PostList({ hasNextPage, isNextPageLoading, items, loadNextPage }) {
+function PostList({
+  hasNextPage,
+  isNextPageLoading,
+  items,
+  loadNextPage,
+  setVote
+}) {
   const [openendPosts, setOpenendPosts] = React.useState({});
   const listRef = React.useRef<List | null>(null);
 
@@ -46,6 +52,7 @@ function PostList({ hasNextPage, isNextPageLoading, items, loadNextPage }) {
       content = (
         <Post
           {...item}
+          setVote={setVote}
           index={index}
           opened={openendPosts[item.id]}
           togglePost={togglePost}

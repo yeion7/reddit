@@ -9,39 +9,136 @@ import { schemaPosts } from "../../../schemas";
 import { fetchPosts } from "../../../api";
 
 import { PostsResponse } from "../../../types/reddit";
-import { Post } from "../../../types/normalized";
+import { Post, voteOptions } from "../../../types/normalized";
 
-const normalizeResponse = (data: PostsResponse): Post[] =>
-  Object.values(normalize<Post>(data, schemaPosts).entities.posts);
+const normalizeResponse = (data: PostsResponse): { [key: string]: Post } =>
+  normalize<Post>(data, schemaPosts).entities.posts;
 
-const SubReddit: NextPage<{ data: Post[]; subreddit: string | string[] }> = ({
-  data,
-  subreddit
-}) => {
-  const [isNextPageLoading, setIsNextPageLoading] = React.useState(false);
-  const [hasNextPage, setHasNextPage] = React.useState(true);
-  const [items, setItems] = React.useState(data);
+interface Props {
+  data: ReturnType<typeof normalizeResponse>;
+  subreddit: string | string[];
+  after: string;
+}
+
+interface State {
+  posts: ReturnType<typeof normalizeResponse>;
+  after: string;
+  hasNextPage: boolean;
+  isNextPageLoading: boolean;
+}
+
+type Action =
+  | { type: "loadingPosts" }
+  | { type: "endPosts" }
+  | {
+      type: "loadPosts";
+      payload: { posts: ReturnType<typeof normalizeResponse>; after: string };
+    }
+  | { type: "vote"; payload: { id: string; vote: voteOptions } }
+  | {
+      type: "loadMorePosts";
+      payload: { posts: ReturnType<typeof normalizeResponse>; after: string };
+    };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "loadingPosts":
+      return { ...state, isNextPageLoading: true };
+    case "loadMorePosts":
+      return {
+        ...state,
+        posts: { ...state.posts, ...action.payload.posts },
+        isNextPageLoading: false,
+        after: action.payload.after
+      };
+    case "loadPosts":
+      return {
+        posts: action.payload.posts,
+        isNextPageLoading: false,
+        hasNextPage: true,
+        after: action.payload.after
+      };
+    case "endPosts":
+      return {
+        ...state,
+        hasNextPage: false
+      };
+    case "vote": {
+      const { id, vote } = action.payload;
+      const post = state.posts[id];
+
+      return {
+        ...state,
+        posts: {
+          ...state.posts,
+          [id]: {
+            ...post,
+            vote,
+            ups: vote === "downvote" ? post.ups - 1 : post.ups + 1
+          }
+        }
+      };
+    }
+    default:
+      throw new Error("Not supported actions");
+  }
+}
+
+const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
+  const firstUpdate = React.useRef(true);
+  const [state, dispach] = React.useReducer(reducer, {
+    posts: data,
+    after,
+    hasNextPage: true,
+    isNextPageLoading: false
+  });
 
   /**
-   * load new posts
+   * load new subreddit when url change
+   */
+  const loadSubReddit = React.useCallback(async () => {
+    const posts: PostsResponse = await fetchPosts({
+      subreddit
+    });
+
+    dispach({
+      type: "loadPosts",
+      payload: { posts: normalizeResponse(posts), after: posts.data.after }
+    });
+  }, [subreddit]);
+
+  /**
+   * load more posts when scroll
    */
   const _loadNextPage = async () => {
-    setIsNextPageLoading(true);
-    const after = items[items.length - 1].name;
+    dispach({ type: "loadingPosts" });
 
-    const posts: PostsResponse = await fetchPosts({ subreddit, after });
+    const posts: PostsResponse = await fetchPosts({
+      subreddit,
+      after
+    });
     const hasChildren = posts.data.children.length > 0;
-    let newItems = items;
 
     if (hasChildren) {
-      newItems = [...items, ...normalizeResponse(posts)];
+      dispach({
+        type: "loadMorePosts",
+        payload: { posts: normalizeResponse(posts), after: posts.data.after }
+      });
+    } else {
+      dispach({ type: "endPosts" });
     }
-
-    setItems(newItems);
-
-    setHasNextPage(hasChildren);
-    setIsNextPageLoading(false);
   };
+
+  React.useEffect(() => {
+    if (!firstUpdate.current) {
+      loadSubReddit();
+    }
+    firstUpdate.current = false;
+  }, [loadSubReddit, subreddit]);
+
+  const setVote = React.useCallback((id: string, vote) => {
+    dispach({ type: "vote", payload: { id, vote } });
+  }, []);
 
   return (
     <div className="app">
@@ -50,10 +147,11 @@ const SubReddit: NextPage<{ data: Post[]; subreddit: string | string[] }> = ({
         <title>{`r/${subreddit}`}</title>
       </Head>
       <PostList
-        hasNextPage={hasNextPage}
-        isNextPageLoading={isNextPageLoading}
-        items={items}
+        hasNextPage={state.hasNextPage}
+        isNextPageLoading={state.isNextPageLoading}
+        items={Object.values(state.posts)}
         loadNextPage={_loadNextPage}
+        setVote={setVote}
       />
       <style jsx>
         {`
@@ -95,7 +193,11 @@ SubReddit.getInitialProps = async ({ query }) => {
   const { subreddit, after = "" } = query;
 
   const posts = await fetchPosts({ subreddit, after });
-  return { data: normalizeResponse(posts), subreddit };
+  return {
+    data: normalizeResponse(posts),
+    subreddit,
+    after: posts.data.after
+  };
 };
 
 export default SubReddit;

@@ -1,5 +1,6 @@
 import { schema } from "normalizr";
 import { RawEntry, RawComment } from "../types/reddit";
+import { voteOptions } from "../types/normalized";
 
 export const parseComment = (rawComment: RawComment) => {
   return {
@@ -64,7 +65,8 @@ export const parsePost = (rawPost: RawEntry) => {
     previews: rawPost.preview,
     thumbnail: rawPost.thumbnail,
     media: rawPost.media,
-    selftext: rawPost.selftext
+    selftext: rawPost.selftext,
+    vote: null as voteOptions
   };
 };
 

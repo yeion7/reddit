@@ -5,6 +5,7 @@ import {
   schemaPosts
 } from "../schemas";
 
+export type voteOptions = "upvote" | "downvote";
 export type Post = ReturnType<typeof parsePost>;
 type Comment = ReturnType<typeof parseComment>;
 

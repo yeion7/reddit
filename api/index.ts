@@ -3,7 +3,7 @@ import { PostsResponse, CommentsResponse } from "../types/reddit";
 
 interface Params {
   subreddit: string | string[];
-  after: string | string[];
+  after?: string | string[];
 }
 /**
  * get subreddit posts
@@ -11,7 +11,7 @@ interface Params {
  */
 export const fetchPosts = async ({
   subreddit,
-  after
+  after = ""
 }: Params): Promise<PostsResponse> => {
   const response = await fetch(
     `https://www.reddit.com/r/${subreddit}.json?after=${after}&dist=25`

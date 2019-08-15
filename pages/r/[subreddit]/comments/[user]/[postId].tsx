@@ -38,7 +38,7 @@ const PostPage: NextPage<Props> = ({ data }) => {
         <link rel="icon" type="image/png" href="/static/favicon.png" />
       </Head>
       <div style={{ background: "#fff" }}>
-        <Post {...post} opened />
+        {/* <Post {...post} opened /> */}
         {data.result.comments.data.children.map(({ data: commentId }) => (
           <Comment
             key={commentId}
