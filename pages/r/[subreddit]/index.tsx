@@ -67,13 +67,9 @@ function reducer(state: State, action: Action): State {
       const { id, vote } = action.payload;
       const post = state.posts[id];
       const undoVote = vote === post.vote;
-      const newUps = undoVote
-        ? vote === "downvote"
-          ? post.ups + 1
-          : post.ups - 1
-        : vote === "downvote"
-        ? post.ups - 1
-        : post.ups + 1;
+      const count = vote === "downvote" ? -1 : 1;
+      const newUps = post.ups + (undoVote ? -count : count);
+
       return {
         ...state,
         posts: {
