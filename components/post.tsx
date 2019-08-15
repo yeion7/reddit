@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import Link from "next/link";
 import { parsePost } from "../schemas";
-import { nFormatter } from "../utils";
+import { nFormatter, decodeHTML } from "../utils";
 import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -13,7 +13,9 @@ const ICONS = {
   self: "📝"
 };
 
-const LinkPost = ({ title, url, thumbnail }) => (
+const cleanUrl = (url: string) => url.replace(/&amp;/g, "&");
+
+const LinkPost = ({ title, url, thumbnail }: PostType) => (
   <Fragment>
     <div>
       <h3 className="title">{title}</h3>
@@ -27,36 +29,73 @@ const LinkPost = ({ title, url, thumbnail }) => (
   </Fragment>
 );
 
-const ImagePost = ({ permalink, previews }) => (
-  <Link href={permalink}>
-    <a style={{ margin: "auto" }}>
-      {previews.images.map(preview => (
-        <img
-          style={{ height: 400 }}
-          key={preview.id}
-          src={preview.source.url.replace("&amp;", "&")}
-          alt=""
-          srcSet={preview.resolutions
-            .map(prev => `${prev.url.replace("&amp;", "&")} ${prev.width}px`)
-            .join("\n")}
-        />
-      ))}
-    </a>
-  </Link>
-);
+const ImagePost = ({ permalink, previews, title, url }: PostType) => {
+  const isGif = url && url.includes("gif");
+
+  return (
+    <Link href={permalink}>
+      <a style={{ margin: "auto" }}>
+        <picture>
+          {previews.images.map(preview => (
+            <Fragment key={preview.id}>
+              <img
+                style={{ height: 400 }}
+                src={isGif ? url : cleanUrl(preview.source.url)}
+                alt={title}
+              />
+              {preview.resolutions.map(prev => (
+                <source
+                  media={`(min-width: ${prev.width}px)`}
+                  key={prev.url}
+                  src={`${cleanUrl(prev.url)}`}
+                />
+              ))}
+            </Fragment>
+          ))}
+        </picture>
+      </a>
+    </Link>
+  );
+};
+
+const VideoPost = ({ previews, media, url }: PostType) => {
+  if (media && media.reddit_video) {
+    return (
+      <video
+        poster={cleanUrl(previews.images[0].source.url)}
+        src={media.reddit_video.fallback_url}
+        controls
+        muted={false}
+        height={400}
+        style={{ margin: "auto" }}
+      >
+        <source src={media.reddit_video.dash_url} />
+        <source src={media.reddit_video.hls_url} />
+      </video>
+    );
+  }
+
+  return (
+    <div
+      style={{ height: 400, margin: "auto" }}
+      dangerouslySetInnerHTML={{
+        __html: decodeHTML(media.oembed.html)
+      }}
+    ></div>
+  );
+};
 
 const PREVIEW = {
   image: ImagePost,
   link: LinkPost,
-  "hosted:video": "📼",
-  "rich:video": "📼",
+  "hosted:video": VideoPost,
+  "rich:video": VideoPost,
   self: "📝"
 };
 
 type PostType = ReturnType<typeof parsePost>;
-const Post: React.FC<
-  PostType & { togglePost?: any; opened?: boolean; index?: number }
-> = ({ opened, togglePost, index, ...post }) => {
+type Props = PostType & { togglePost?: any; opened?: boolean; index?: number };
+const Post: React.FC<Props> = ({ opened, togglePost, index, ...post }) => {
   const {
     id,
     ups,
@@ -241,4 +280,4 @@ const Post: React.FC<
   );
 };
 
-export default React.memo<ReturnType<typeof parsePost>>(Post);
+export default React.memo<Props>(Post);

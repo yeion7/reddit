@@ -60,7 +60,8 @@ export const parsePost = (rawPost: RawEntry) => {
     permalink: rawPost.permalink,
     url: rawPost.url,
     previews: rawPost.preview,
-    thumbnail: rawPost.thumbnail
+    thumbnail: rawPost.thumbnail,
+    media: rawPost.media
   };
 };
 

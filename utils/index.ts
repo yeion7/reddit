@@ -18,3 +18,9 @@ export function nFormatter(num: number): string {
 
   return String(num);
 }
+
+export function decodeHTML(html: string) {
+  var txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}

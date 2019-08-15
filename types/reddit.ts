@@ -111,9 +111,30 @@ export interface RawEntry {
   subreddit_subscribers: number;
   created_utc: number;
   discussion_type?: any;
-  media?: Securemedia;
+  media?: Securemedia & RichMedia;
   is_video: boolean;
   link_flair_template_id?: string;
+}
+
+interface RichMedia {
+  type: string;
+  oembed: Oembed;
+}
+
+interface Oembed {
+  provider_url: string;
+  description: string;
+  title: string;
+  type: string;
+  author_name: string;
+  height: number;
+  width: number;
+  html: string;
+  thumbnail_width: number;
+  version: string;
+  provider_name: string;
+  thumbnail_url: string;
+  thumbnail_height: number;
 }
 
 interface Allawarding {

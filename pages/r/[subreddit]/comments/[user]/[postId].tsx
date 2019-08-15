@@ -48,7 +48,7 @@ const PostPage: NextPage<Props> = ({ data }) => {
   return (
     <div className="app">
       <div style={{ background: "#fff" }}>
-        <Post {...post}></Post>
+        <Post {...post} opened />
         {data.result.comments.data.children.map(({ data: commentId }) => (
           <Comment
             key={commentId}
