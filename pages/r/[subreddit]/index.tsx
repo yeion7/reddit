@@ -66,15 +66,22 @@ function reducer(state: State, action: Action): State {
     case "vote": {
       const { id, vote } = action.payload;
       const post = state.posts[id];
-
+      const undoVote = vote === post.vote;
+      const newUps = undoVote
+        ? vote === "downvote"
+          ? post.ups + 1
+          : post.ups - 1
+        : vote === "downvote"
+        ? post.ups - 1
+        : post.ups + 1;
       return {
         ...state,
         posts: {
           ...state.posts,
           [id]: {
             ...post,
-            vote,
-            ups: vote === "downvote" ? post.ups - 1 : post.ups + 1
+            vote: undoVote ? null : vote,
+            ups: newUps
           }
         }
       };
@@ -110,7 +117,7 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
   /**
    * load more posts when scroll
    */
-  const _loadNextPage = async () => {
+  const _loadNextPage = React.useCallback(async () => {
     dispach({ type: "loadingPosts" });
 
     const posts: PostsResponse = await fetchPosts({
@@ -127,7 +134,7 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
     } else {
       dispach({ type: "endPosts" });
     }
-  };
+  }, [after, subreddit]);
 
   React.useEffect(() => {
     if (!firstUpdate.current) {
@@ -136,7 +143,7 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
     firstUpdate.current = false;
   }, [loadSubReddit, subreddit]);
 
-  const setVote = React.useCallback((id: string, vote) => {
+  const setVote = React.useCallback((id: string, vote: voteOptions) => {
     dispach({ type: "vote", payload: { id, vote } });
   }, []);
 

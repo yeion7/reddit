@@ -77,7 +77,6 @@ const PostContent: React.FC<Props> = ({
           <button
             aria-label="upvote"
             className="vote"
-            disabled={vote === "upvote"}
             onClick={() => setVote(id, "upvote")}
           >
             <FaArrowCircleUp
@@ -90,7 +89,6 @@ const PostContent: React.FC<Props> = ({
           <button
             aria-label="downvote"
             className="vote"
-            disabled={vote === "downvote"}
             onClick={() => setVote(id, "downvote")}
           >
             <FaArrowCircleDown
