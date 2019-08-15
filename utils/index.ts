@@ -19,8 +19,18 @@ export function nFormatter(num: number): string {
   return String(num);
 }
 
+/**
+ * decode string
+ * @param html
+ */
 export function decodeHTML(html: string) {
   var txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 }
+
+/**
+ * decode url
+ * @param url
+ */
+export const cleanUrl = (url: string) => url.replace(/&amp;/g, "&");

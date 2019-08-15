@@ -61,7 +61,8 @@ export const parsePost = (rawPost: RawEntry) => {
     url: rawPost.url,
     previews: rawPost.preview,
     thumbnail: rawPost.thumbnail,
-    media: rawPost.media
+    media: rawPost.media,
+    selftext: rawPost.selftext
   };
 };
 

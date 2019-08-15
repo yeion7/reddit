@@ -1,7 +1,8 @@
 import React, { Fragment } from "react";
+import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import { parsePost } from "../schemas";
-import { nFormatter, decodeHTML } from "../utils";
+import { nFormatter, decodeHTML, cleanUrl } from "../utils";
 import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -13,7 +14,26 @@ const ICONS = {
   self: "📝"
 };
 
-const cleanUrl = (url: string) => url.replace(/&amp;/g, "&");
+const UnknowHint = ({ title, selftext, permalink }: PostType) => {
+  return (
+    <div>
+      <Link href={permalink}>
+        <a>
+          <h4>{title}</h4>
+        </a>
+      </Link>
+      <ReactMarkdown>{selftext}</ReactMarkdown>
+    </div>
+  );
+};
+
+const SelfPost = ({ selftext }: PostType) => {
+  return (
+    <div style={{ overflowY: "scroll", height: 400, padding: 10 }}>
+      <ReactMarkdown>{selftext}</ReactMarkdown>;
+    </div>
+  );
+};
 
 const LinkPost = ({ title, url, thumbnail }: PostType) => (
   <Fragment>
@@ -90,7 +110,7 @@ const PREVIEW = {
   link: LinkPost,
   "hosted:video": VideoPost,
   "rich:video": VideoPost,
-  self: "📝"
+  self: SelfPost
 };
 
 type PostType = ReturnType<typeof parsePost>;
@@ -107,7 +127,8 @@ const Post: React.FC<Props> = ({ opened, togglePost, index, ...post }) => {
     postHint,
     permalink
   } = post;
-  const Preview = PREVIEW[postHint];
+  const Preview = PREVIEW[postHint] || UnknowHint;
+  const iconPreview = ICONS[postHint] || "📑";
 
   return (
     <div className="container">
@@ -123,7 +144,7 @@ const Post: React.FC<Props> = ({ opened, togglePost, index, ...post }) => {
         </div>
         <div className="content">
           <button className="preview" onClick={() => togglePost(id, index)}>
-            {ICONS[postHint] || "😱"}
+            {iconPreview}
           </button>
           <div className="info">
             <div>
