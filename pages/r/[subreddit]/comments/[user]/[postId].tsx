@@ -3,34 +3,152 @@ import { NextPage } from "next";
 import { normalize } from "normalizr";
 import Head from "next/head";
 
-import Post from "../../../../../components/post";
+import PostContent from "../../../../../components/post";
 import Comment from "../../../../../components/comment";
-import { PostsResponse, CommentsResponse } from "../../../../../types/reddit";
+import {
+  PostsResponse,
+  CommentsResponse,
+  Reply
+} from "../../../../../types/reddit";
 
 import { schemaPosts, schemaComments } from "../../../../../schemas";
 import { fetchPost } from "../../../../../api";
 import {
   Normalized,
   NormalizedEntities,
-  NormalizedResult
+  NormalizedResult,
+  voteOptions
 } from "../../../../../types/normalized";
+import getUnixTime from "date-fns/getUnixTime";
+import { mergeDeepRight } from "../../../../../merge";
 
 const normalizeResponse = (data: {
   comments: CommentsResponse;
   posts: PostsResponse;
 }) => {
-  return normalize<NormalizedEntities, NormalizedResult, Normalized>(data, {
+  const normalized = normalize<
+    NormalizedEntities,
+    NormalizedResult,
+    Normalized
+  >(data, {
     comments: schemaComments,
     posts: schemaPosts
   });
+
+  return {
+    posts: normalized.entities.posts,
+    comments: normalized.entities.comments,
+    rootComments: normalized.result.comments
+  };
+};
+
+type State = ReturnType<typeof normalizeResponse>;
+type Action =
+  | {
+      type: "vote";
+      payload: { id: string; vote: voteOptions; entity: "comments" | "posts" };
+    }
+  | { type: "addComment"; payload: { belongTo: string; comment: string } };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "vote": {
+      const { id, vote, entity } = action.payload;
+      const currentEntity = state[entity][id];
+      const undoVote = vote === currentEntity.vote;
+      const count = vote === "downvote" ? -1 : 1;
+      const newUps = currentEntity.ups + (undoVote ? -count : count);
+
+      return {
+        ...state,
+        [entity]: {
+          ...state[entity],
+          [id]: {
+            ...currentEntity,
+            vote: undoVote ? null : vote,
+            ups: newUps
+          }
+        }
+      };
+    }
+    case "addComment": {
+      const { belongTo, comment } = action.payload;
+      const parent = state.comments[belongTo];
+      const newCommentId = Date.now().toString();
+
+      const newReplie = {
+        kind: "Listing",
+        data: {
+          modhash: "",
+          dist: null,
+          children: [
+            {
+              kind: "t1",
+              data: newCommentId
+            }
+          ],
+          after: null,
+          before: null
+        }
+      };
+
+      const hasReplies = typeof parent.replies !== "string";
+
+      return {
+        ...state,
+        comments: {
+          ...state.comments,
+          [parent.id]: {
+            ...parent,
+            replies: hasReplies
+              ? (mergeDeepRight(parent.replies, newReplie) as Reply)
+              : newReplie
+          },
+          [newCommentId]: {
+            id: newCommentId,
+            author: "usuario",
+            body: comment,
+            name: `t1_${newCommentId}`,
+            created: getUnixTime(new Date()),
+            depth: parent.depth + 1,
+            ups: 0,
+            vote: null,
+            replies: "",
+            children: undefined
+          }
+        }
+      };
+    }
+    default:
+      throw new Error("Action not supported");
+  }
 };
 
 interface Props {
   data: ReturnType<typeof normalizeResponse>;
 }
 const PostPage: NextPage<Props> = ({ data }) => {
-  const post = Object.values(data.entities.posts)[0];
-  const comments = data.entities.comments;
+  const [state, dispatch] = React.useReducer(reducer, data);
+  /**
+   * vote a post
+   */
+  const setVotePost = React.useCallback((id: string, vote: voteOptions) => {
+    dispatch({ type: "vote", payload: { id, vote, entity: "posts" } });
+  }, []);
+
+  /**
+   * vote a comment
+   */
+  const setVoteComment = React.useCallback((id: string, vote: voteOptions) => {
+    dispatch({ type: "vote", payload: { id, vote, entity: "comments" } });
+  }, []);
+
+  /**
+   * vote a comment
+   */
+  const setComment = React.useCallback((belongTo: string, comment: string) => {
+    dispatch({ type: "addComment", payload: { belongTo, comment } });
+  }, []);
 
   return (
     <div className="app">
@@ -38,12 +156,16 @@ const PostPage: NextPage<Props> = ({ data }) => {
         <link rel="icon" type="image/png" href="/static/favicon.png" />
       </Head>
       <div style={{ background: "#fff" }}>
-        <Post {...post} opened setVote={console.log} />
-        {data.result.comments.data.children.map(({ data: commentId }) => (
+        {Object.values(state.posts).map(post => (
+          <PostContent key={post.id} {...post} opened setVote={setVotePost} />
+        ))}
+        {state.rootComments.data.children.map(({ data: commentId }) => (
           <Comment
             key={commentId}
-            comments={comments}
-            {...comments[commentId]}
+            comments={state.comments}
+            setVote={setVoteComment}
+            setComment={setComment}
+            {...state.comments[commentId]}
           />
         ))}
       </div>

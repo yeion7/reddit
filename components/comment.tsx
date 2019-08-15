@@ -8,15 +8,38 @@ import { es } from "date-fns/locale";
 import { nFormatter } from "../utils";
 
 import { FaArrowCircleUp, FaArrowCircleDown } from "react-icons/fa";
+import { voteOptions } from "../types/normalized";
 
 type CommentType = ReturnType<typeof parseComment>;
+type Props = {
+  comments: { [key: string]: CommentType };
+  setVote: (id: string, vote: voteOptions) => void;
+  setComment: (belongTo: string, comment: string) => void;
+} & CommentType;
 
-const Comment: React.FC<
-  {
-    comments: { [key: string]: CommentType };
-  } & CommentType
-> = ({ comments, id, body, ups, created, author, children, replies }) => {
-  const [open, setOpen] = React.useState(true);
+const Comment: React.FC<Props> = ({
+  comments,
+  id,
+  body,
+  ups,
+  created,
+  author,
+  children,
+  replies,
+  vote,
+  setVote,
+  setComment
+}) => {
+  const [openThread, setOpenThread] = React.useState(true);
+  const [openComment, setOpenComment] = React.useState(false);
+
+  const addComment = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // @ts-ignore
+    const { value } = e.target.elements.comment;
+    setOpenComment(false);
+    setComment(id, value);
+  };
 
   return (
     <div className="comment">
@@ -27,23 +50,39 @@ const Comment: React.FC<
       ) : (
         <>
           <div className="actions">
-            <button aria-label="upvote" className="vote">
-              <FaArrowCircleUp size={14} role="presentation" />
+            <button
+              aria-label="upvote"
+              className="vote"
+              onClick={() => setVote(id, "upvote")}
+            >
+              <FaArrowCircleUp
+                size={14}
+                role="presentation"
+                color={vote === "upvote" ? "#ff895f" : "currentColor"}
+              />
             </button>
-            <button aria-label="downvote" className="vote">
-              <FaArrowCircleDown size={14} role="presentation" />
+            <button
+              aria-label="downvote"
+              className="vote"
+              onClick={() => setVote(id, "downvote")}
+            >
+              <FaArrowCircleDown
+                color={vote === "downvote" ? "#ff895f" : "currentColor"}
+                size={14}
+                role="presentation"
+              />
             </button>
           </div>
           <div className="content">
             <div className="info">
               {replies && (
                 <button
-                  onClick={() => setOpen(!open)}
+                  onClick={() => setOpenThread(!openThread)}
                   aria-label={
-                    open ? "ver menos comentarios" : "ver más comentarios"
+                    openThread ? "ver menos comentarios" : "ver más comentarios"
                   }
                 >
-                  [{`${open ? "-" : "+"}`}]
+                  [{`${openThread ? "-" : "+"}`}]
                 </button>
               )}
               <a className="user">{author}</a>
@@ -61,10 +100,44 @@ const Comment: React.FC<
             <div className="text">
               <ReactMarkdown source={body} />
             </div>
+            <div>
+              {openComment ? (
+                <form onSubmit={addComment}>
+                  <textarea className="inputComment" name="comment" />
+
+                  <div style={{ marginTop: 5 }}>
+                    <button
+                      type="button"
+                      className="action_button"
+                      style={{ marginRight: 5, background: "#e14242" }}
+                      onClick={() => setOpenComment(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button type="submit" className="action_button">
+                      Guardar
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button
+                  className="action_button"
+                  onClick={() => setOpenComment(true)}
+                >
+                  Comentar
+                </button>
+              )}
+            </div>
             {typeof replies === "object" &&
-              open &&
+              openThread &&
               replies.data.children.map(({ data }) => (
-                <Comment key={data} comments={comments} {...comments[data]} />
+                <Comment
+                  key={data}
+                  comments={comments}
+                  setVote={setVote}
+                  setComment={setComment}
+                  {...comments[data]}
+                />
               ))}
           </div>
         </>
@@ -127,6 +200,27 @@ const Comment: React.FC<
             cursor: pointer;
             padding: initial;
           }
+
+          .inputComment {
+            width: 100%;
+            height: 150px;
+            max-width: 500px;
+            display: block;
+          }
+
+          .action_button {
+            color: #fff;
+            background-color: #4299e1;
+            padding: 0.5em 1em;
+            border: 0 solid #e2e8f0;
+            border-radius: 0.25rem;
+          }
+
+          .action_button:hover {
+            background-color: #2b6cb0;
+            border: 0 solid #2b6cb0;
+          }
+
           a:hover {
             text-decoration: underline;
           }
@@ -136,4 +230,4 @@ const Comment: React.FC<
   );
 };
 
-export default Comment;
+export default React.memo<Props>(Comment);

@@ -12,7 +12,8 @@ export const parseComment = (rawComment: RawComment) => {
     depth: rawComment.depth,
     ups: rawComment.ups,
     replies: rawComment.replies,
-    children: rawComment.children
+    children: rawComment.children,
+    vote: null as voteOptions
   };
 };
 

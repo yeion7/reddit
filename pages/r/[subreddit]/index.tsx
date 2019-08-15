@@ -92,7 +92,7 @@ function reducer(state: State, action: Action): State {
 
 const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
   const firstUpdate = React.useRef(true);
-  const [state, dispach] = React.useReducer(reducer, {
+  const [state, dispatch] = React.useReducer(reducer, {
     posts: data,
     after,
     hasNextPage: true,
@@ -107,7 +107,7 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
       subreddit
     });
 
-    dispach({
+    dispatch({
       type: "loadPosts",
       payload: { posts: normalizeResponse(posts), after: posts.data.after }
     });
@@ -117,7 +117,7 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
    * load more posts when scroll
    */
   const _loadNextPage = React.useCallback(async () => {
-    dispach({ type: "loadingPosts" });
+    dispatch({ type: "loadingPosts" });
 
     const posts: PostsResponse = await fetchPosts({
       subreddit,
@@ -126,15 +126,18 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
     const hasChildren = posts.data.children.length > 0;
 
     if (hasChildren) {
-      dispach({
+      dispatch({
         type: "loadMorePosts",
         payload: { posts: normalizeResponse(posts), after: posts.data.after }
       });
     } else {
-      dispach({ type: "endPosts" });
+      dispatch({ type: "endPosts" });
     }
   }, [state.after, subreddit]);
 
+  /**
+   * is subreddit change, fetch new posts
+   */
   React.useEffect(() => {
     if (!firstUpdate.current) {
       loadSubReddit();
@@ -142,8 +145,11 @@ const SubReddit: NextPage<Props> = ({ data, subreddit, after }) => {
     firstUpdate.current = false;
   }, [loadSubReddit, subreddit]);
 
+  /**
+   * vote a post
+   */
   const setVote = React.useCallback((id: string, vote: voteOptions) => {
-    dispach({ type: "vote", payload: { id, vote } });
+    dispatch({ type: "vote", payload: { id, vote } });
   }, []);
 
   return (

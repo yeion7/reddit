@@ -7,7 +7,7 @@ import {
 
 export type voteOptions = "upvote" | "downvote";
 export type Post = ReturnType<typeof parsePost>;
-type Comment = ReturnType<typeof parseComment>;
+export type Comment = ReturnType<typeof parseComment>;
 
 export interface Normalized {
   posts: Posts;

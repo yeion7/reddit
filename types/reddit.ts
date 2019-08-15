@@ -291,7 +291,7 @@ interface Authorflairrichtext {
   t?: string;
 }
 
-interface Reply {
+export interface Reply {
   kind: string;
   data: Data;
 }
