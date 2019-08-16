@@ -132,6 +132,11 @@ const PostPage: NextPage<Props> = ({ data }) => {
     <div className="app">
       <Head>
         <link rel="icon" type="image/png" href="/static/favicon.png" />
+        <title>
+          {Object.values(state.posts)
+            .map(post => post.title)
+            .join()}
+        </title>
       </Head>
       <div style={{ background: "#fff" }}>
         {Object.values(state.posts).map(post => (
