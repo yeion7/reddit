@@ -71,7 +71,7 @@ const PostContent: React.FC<Props> = ({
   const IconPreview = ICONS[postHint] || FaRegNewspaper;
 
   return (
-    <article className="container">
+    <article className="container" data-testid={`post-${id}`}>
       <div className="postRow">
         <div className="actions">
           <button
@@ -85,7 +85,9 @@ const PostContent: React.FC<Props> = ({
               color={vote === "upvote" ? "#ff895f" : "currentColor"}
             />
           </button>
-          <span className="count">{nFormatter(ups)}</span>
+          <span className="count" aria-label={`Votos positivos ${ups}`}>
+            {nFormatter(ups)}
+          </span>
           <button
             aria-label="downvote"
             className="vote"
