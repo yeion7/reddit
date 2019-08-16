@@ -42,7 +42,7 @@ const Comment: React.FC<Props> = ({
   };
 
   return (
-    <div className="comment">
+    <div className="comment" data-testid={`comment-${id}`}>
       {more ? (
         <Link href={id}>
           <a className="showMore">Ver más ({more.length})</a>
@@ -103,10 +103,16 @@ const Comment: React.FC<Props> = ({
             <div>
               {openComment ? (
                 <form onSubmit={addComment}>
-                  <textarea className="inputComment" name="comment" />
+                  <textarea
+                    data-testid={`inputcomment-${id}`}
+                    placeholder="añade una respuesta"
+                    className="inputComment"
+                    name="comment"
+                  />
 
                   <div style={{ marginTop: 5 }}>
                     <button
+                      data-testid={`cancelcomment-${id}`}
                       type="button"
                       className="action_button"
                       style={{ marginRight: 5, background: "#e14242" }}
@@ -114,13 +120,18 @@ const Comment: React.FC<Props> = ({
                     >
                       Cancelar
                     </button>
-                    <button type="submit" className="action_button">
+                    <button
+                      data-testid={`savecomment-${id}`}
+                      type="submit"
+                      className="action_button"
+                    >
                       Guardar
                     </button>
                   </div>
                 </form>
               ) : (
                 <button
+                  data-testid={`addcomment-${id}`}
                   className="action_button"
                   onClick={() => setOpenComment(true)}
                 >

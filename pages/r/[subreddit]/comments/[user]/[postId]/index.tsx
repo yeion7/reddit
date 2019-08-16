@@ -3,20 +3,23 @@ import { NextPage } from "next";
 import { normalize } from "normalizr";
 import Head from "next/head";
 
-import PostContent from "../../../../../components/post";
-import Comment from "../../../../../components/comment";
-import { PostsResponse, CommentsResponse } from "../../../../../types/reddit";
+import PostContent from "../../../../../../components/post";
+import Comment from "../../../../../../components/comment";
+import {
+  PostsResponse,
+  CommentsResponse
+} from "../../../../../../types/reddit";
 
-import { schemaPosts, schemaComments } from "../../../../../schemas";
-import { fetchPost } from "../../../../../api";
+import { schemaPosts, schemaComments } from "../../../../../../schemas";
+import { fetchPost } from "../../../../../../api";
 import {
   Normalized,
   NormalizedEntities,
   NormalizedResult,
   voteOptions
-} from "../../../../../types/normalized";
+} from "../../../../../../types/normalized";
 import getUnixTime from "date-fns/getUnixTime";
-import { calculateNewVotes } from "../../../../../utils";
+import { calculateNewVotes } from "../../../../../../utils";
 
 const normalizeResponse = (data: {
   comments: CommentsResponse;
