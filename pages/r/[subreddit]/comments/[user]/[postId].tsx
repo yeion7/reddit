@@ -16,6 +16,7 @@ import {
   voteOptions
 } from "../../../../../types/normalized";
 import getUnixTime from "date-fns/getUnixTime";
+import { calculateNewVotes } from "../../../../../utils";
 
 const normalizeResponse = (data: {
   comments: CommentsResponse;
@@ -50,9 +51,6 @@ const reducer = (state: State, action: Action): State => {
     case "vote": {
       const { id, vote, entity } = action.payload;
       const currentEntity = state[entity][id];
-      const undoVote = vote === currentEntity.vote;
-      const count = vote === "downvote" ? -1 : 1;
-      const newUps = currentEntity.ups + (undoVote ? -count : count);
 
       return {
         ...state,
@@ -60,8 +58,12 @@ const reducer = (state: State, action: Action): State => {
           ...state[entity],
           [id]: {
             ...currentEntity,
-            vote: undoVote ? null : vote,
-            ups: newUps
+            vote: vote === currentEntity.vote ? null : vote,
+            ups: calculateNewVotes({
+              lastVote: currentEntity.vote,
+              currentVote: vote,
+              ups: currentEntity.ups
+            })
           }
         }
       };
@@ -104,7 +106,7 @@ interface Props {
 }
 const PostPage: NextPage<Props> = ({ data }) => {
   const [state, dispatch] = React.useReducer(reducer, data);
-  console.log(state);
+
   /**
    * vote a post
    */

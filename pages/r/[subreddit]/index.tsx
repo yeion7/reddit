@@ -10,6 +10,7 @@ import { fetchPosts } from "../../../api";
 
 import { PostsResponse } from "../../../types/reddit";
 import { Post, voteOptions } from "../../../types/normalized";
+import { calculateNewVotes } from "../../../utils";
 
 const normalizeResponse = (data: PostsResponse): { [key: string]: Post } =>
   normalize<Post>(data, schemaPosts).entities.posts;
@@ -69,9 +70,6 @@ function reducer(state: State, action: Action): State {
     case "vote": {
       const { id, vote } = action.payload;
       const post = state.posts[id];
-      const undoVote = vote === post.vote;
-      const count = vote === "downvote" ? -1 : 1;
-      const newUps = post.ups + (undoVote ? -count : count);
 
       return {
         ...state,
@@ -79,8 +77,12 @@ function reducer(state: State, action: Action): State {
           ...state.posts,
           [id]: {
             ...post,
-            vote: undoVote ? null : vote,
-            ups: newUps
+            vote: post.vote === vote ? null : vote,
+            ups: calculateNewVotes({
+              lastVote: post.vote,
+              currentVote: vote,
+              ups: post.ups
+            })
           }
         }
       };
