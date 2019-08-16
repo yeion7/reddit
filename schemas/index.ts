@@ -12,7 +12,7 @@ export const parseComment = (rawComment: RawComment) => {
     depth: rawComment.depth,
     ups: rawComment.ups,
     replies:
-      typeof rawComment.replies === "string"
+      !rawComment.replies || typeof rawComment.replies === "string"
         ? []
         : rawComment.replies.data.children.map(child => child.data),
     more: rawComment.children,
