@@ -5,11 +5,7 @@ import Head from "next/head";
 
 import PostContent from "../../../../../components/post";
 import Comment from "../../../../../components/comment";
-import {
-  PostsResponse,
-  CommentsResponse,
-  Reply
-} from "../../../../../types/reddit";
+import { PostsResponse, CommentsResponse } from "../../../../../types/reddit";
 
 import { schemaPosts, schemaComments } from "../../../../../schemas";
 import { fetchPost } from "../../../../../api";
@@ -20,7 +16,6 @@ import {
   voteOptions
 } from "../../../../../types/normalized";
 import getUnixTime from "date-fns/getUnixTime";
-import { mergeDeepRight } from "../../../../../merge";
 
 const normalizeResponse = (data: {
   comments: CommentsResponse;
@@ -76,33 +71,13 @@ const reducer = (state: State, action: Action): State => {
       const parent = state.comments[belongTo];
       const newCommentId = Date.now().toString();
 
-      const newReplie = {
-        kind: "Listing",
-        data: {
-          modhash: "",
-          dist: null,
-          children: [
-            {
-              kind: "t1",
-              data: newCommentId
-            }
-          ],
-          after: null,
-          before: null
-        }
-      };
-
-      const hasReplies = typeof parent.replies !== "string";
-
       return {
         ...state,
         comments: {
           ...state.comments,
           [parent.id]: {
             ...parent,
-            replies: hasReplies
-              ? (mergeDeepRight(parent.replies, newReplie) as Reply)
-              : newReplie
+            replies: [...parent.replies, newCommentId]
           },
           [newCommentId]: {
             id: newCommentId,
@@ -113,8 +88,8 @@ const reducer = (state: State, action: Action): State => {
             depth: parent.depth + 1,
             ups: 0,
             vote: null,
-            replies: "",
-            children: undefined
+            replies: [],
+            more: undefined
           }
         }
       };
@@ -129,6 +104,7 @@ interface Props {
 }
 const PostPage: NextPage<Props> = ({ data }) => {
   const [state, dispatch] = React.useReducer(reducer, data);
+  console.log(state);
   /**
    * vote a post
    */

@@ -11,8 +11,11 @@ export const parseComment = (rawComment: RawComment) => {
     created: rawComment.created_utc,
     depth: rawComment.depth,
     ups: rawComment.ups,
-    replies: rawComment.replies,
-    children: rawComment.children,
+    replies:
+      typeof rawComment.replies === "string"
+        ? []
+        : rawComment.replies.data.children.map(child => child.data),
+    more: rawComment.children,
     vote: null as voteOptions
   };
 };
@@ -29,15 +32,7 @@ const comment = new schema.Entity(
  * define a nested structure
  */
 comment.define({
-  replies: {
-    data: {
-      children: [
-        {
-          data: comment
-        }
-      ]
-    }
-  }
+  replies: [comment]
 });
 
 export const schemaComments = {

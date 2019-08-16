@@ -24,7 +24,7 @@ const Comment: React.FC<Props> = ({
   ups,
   created,
   author,
-  children,
+  more,
   replies,
   vote,
   setVote,
@@ -43,9 +43,9 @@ const Comment: React.FC<Props> = ({
 
   return (
     <div className="comment">
-      {children ? (
+      {more ? (
         <Link href={id}>
-          <a className="showMore">Ver más ({children.length})</a>
+          <a className="showMore">Ver más ({more.length})</a>
         </Link>
       ) : (
         <>
@@ -75,7 +75,7 @@ const Comment: React.FC<Props> = ({
           </div>
           <div className="content">
             <div className="info">
-              {replies && (
+              {replies.length > 0 && (
                 <button
                   onClick={() => setOpenThread(!openThread)}
                   aria-label={
@@ -128,15 +128,14 @@ const Comment: React.FC<Props> = ({
                 </button>
               )}
             </div>
-            {typeof replies === "object" &&
-              openThread &&
-              replies.data.children.map(({ data }) => (
+            {openThread &&
+              replies.map(replyId => (
                 <Comment
-                  key={data}
+                  key={replyId}
                   comments={comments}
                   setVote={setVote}
                   setComment={setComment}
-                  {...comments[data]}
+                  {...comments[replyId]}
                 />
               ))}
           </div>
